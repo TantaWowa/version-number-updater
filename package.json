@@ -5,7 +5,7 @@
   "type": "module",
   "main": "src/resolve-version-number.js",
   "bin": {
-    "resolve-version-number": "./src/resolve-version-number.js"
+    "resolve-version-number": "./src/cli.js"
   },
   "files": [
     "src/",

@@ -8,7 +8,7 @@ import { execSync } from 'child_process';
 import { readFileSync, writeFileSync } from 'fs';
 import { resolve } from 'path';
 
-const scriptPath = resolve(process.cwd(), 'src/resolve-version-number.js');
+const scriptPath = resolve(process.cwd(), 'src/cli.js');
 const testDataPath = resolve(process.cwd(), 'test-data');
 const testPkgPath = resolve(testDataPath, 'package.json');
 
