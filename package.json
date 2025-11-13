@@ -13,7 +13,10 @@
     "LICENSE"
   ],
   "scripts": {
-    "test": "node src/resolve-version-number.test.js && node src/resolve-version-number.cli.test.js"
+    "test": "node src/resolve-version-number.test.js && node src/resolve-version-number.cli.test.js",
+    "lint": "eslint src/**/*.js",
+    "lint:fix": "eslint src/**/*.js --fix",
+    "build": "echo 'Build complete - no build step needed for this project'"
   },
   "keywords": [
     "version",
@@ -44,6 +47,7 @@
   "dependencies": {
     "yargs": "^17.7.2"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "eslint": "^8.57.0"
+  }
 }
-

@@ -5,37 +5,36 @@
  */
 
 import { execSync } from 'child_process';
-import { readFileSync, writeFileSync, existsSync } from 'fs';
+import { readFileSync, writeFileSync } from 'fs';
 import { resolve } from 'path';
 
 const scriptPath = resolve(process.cwd(), 'src/resolve-version-number.js');
-const pkgPath = resolve(process.cwd(), 'package.json');
+const testDataPath = resolve(process.cwd(), 'test-data');
+const testPkgPath = resolve(testDataPath, 'package.json');
 
-// Save original package.json
-const originalPkg = readFileSync(pkgPath, 'utf8');
+// Save original test package.json
+const originalTestPkg = readFileSync(testPkgPath, 'utf8');
 
 function runScript(input, overrideVersion = null) {
   try {
     const cmd = overrideVersion
-      ? `node ${scriptPath} ${input} ${overrideVersion}`
-      : `node ${scriptPath} ${input}`;
-    const output = execSync(cmd, { encoding: 'utf8', cwd: process.cwd() }).trim();
+      ? `node ${scriptPath} ${input} --override ${overrideVersion} --package-json package.json`
+      : `node ${scriptPath} ${input} --package-json package.json`;
+    const output = execSync(cmd, { encoding: 'utf8', cwd: testDataPath }).trim();
     return JSON.parse(output);
   } catch (error) {
     return { error: error.message, stdout: error.stdout?.toString(), stderr: error.stderr?.toString() };
   }
 }
 
-function test(name, input, overrideVersion, expected) {
-  // Temporarily set package.json version if override provided
-  if (overrideVersion) {
-    const pkg = JSON.parse(originalPkg);
-    pkg.version = overrideVersion;
-    writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n');
-  }
+function test(name, input, testVersion, expected) {
+  // Set test package.json version
+  const pkg = JSON.parse(originalTestPkg);
+  pkg.version = testVersion;
+  writeFileSync(testPkgPath, JSON.stringify(pkg, null, 2) + '\n');
 
   try {
-    const result = runScript(input, overrideVersion ? null : undefined);
+    const result = runScript(input, null);
 
     if (result.error) {
       console.error(`❌ ${name}: Error - ${result.error}`);
@@ -51,8 +50,8 @@ function test(name, input, overrideVersion, expected) {
       return false;
     }
   } finally {
-    // Restore original package.json
-    writeFileSync(pkgPath, originalPkg);
+    // Restore original test package.json
+    writeFileSync(testPkgPath, originalTestPkg);
   }
 }
 

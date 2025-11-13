@@ -18,13 +18,9 @@
 
 import { readFileSync, writeFileSync } from 'fs';
 import { resolve, dirname } from 'path';
-import { fileURLToPath } from 'url';
 import { execSync } from 'child_process';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 function getCurrentVersion(overrideVersion = null, packageJsonPath = null) {
   if (overrideVersion) {
@@ -75,44 +71,38 @@ function calculateBumpVersion(bumpType, overrideVersion = null, packageJsonPath 
   const pkgPath = packageJsonPath
     ? resolve(process.cwd(), packageJsonPath)
     : resolve(process.cwd(), 'package.json');
+  const pkgDir = dirname(pkgPath);
   const originalVersion = getCurrentVersion(overrideVersion, packageJsonPath);
   let pkg = null;
   let originalPkgContent = null;
 
+  // Save original package.json content
+  originalPkgContent = readFileSync(pkgPath, 'utf8');
+  pkg = JSON.parse(originalPkgContent);
+
   // If override version is provided, temporarily update package.json
   if (overrideVersion) {
-    pkg = JSON.parse(readFileSync(pkgPath, 'utf8'));
-    originalPkgContent = readFileSync(pkgPath, 'utf8');
     pkg.version = overrideVersion;
     writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n');
   }
 
   try {
     // Use npm version to calculate the new version (without committing)
+    // Run in the directory containing the package.json
     execSync(`npm version ${bumpType} --no-git-tag-version`, {
       stdio: 'ignore',
-      cwd: process.cwd()
+      cwd: pkgDir
     });
 
-    const newVersion = getCurrentVersion();
+    const newVersion = getCurrentVersion(null, packageJsonPath);
 
-    // Restore original version
-    execSync(`npm version ${originalVersion} --no-git-tag-version`, {
-      stdio: 'ignore',
-      cwd: process.cwd()
-    });
-
-    // Restore original package.json if we modified it
-    if (overrideVersion && originalPkgContent) {
-      writeFileSync(pkgPath, originalPkgContent);
-    }
+    // Restore original package.json by writing it back directly
+    writeFileSync(pkgPath, originalPkgContent);
 
     return { original: originalVersion, version: newVersion };
   } catch (error) {
-    // Restore original package.json if we modified it
-    if (overrideVersion && originalPkgContent) {
-      writeFileSync(pkgPath, originalPkgContent);
-    }
+    // Restore original package.json on error
+    writeFileSync(pkgPath, originalPkgContent);
     console.error(`Error calculating version bump: ${error.message}`);
     process.exit(1);
   }

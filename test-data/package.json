@@ -1,0 +1,6 @@
+{
+  "name": "test-package",
+  "version": "2.5.10",
+  "description": "Test package.json for unit tests",
+  "type": "module"
+}

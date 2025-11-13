@@ -9,10 +9,11 @@ import { readFileSync, writeFileSync } from 'fs';
 import { resolve } from 'path';
 
 const scriptPath = resolve(process.cwd(), 'src/resolve-version-number.js');
-const pkgPath = resolve(process.cwd(), 'package.json');
+const testDataPath = resolve(process.cwd(), 'test-data');
+const testPkgPath = resolve(testDataPath, 'package.json');
 
-// Save original package.json
-const originalPkg = readFileSync(pkgPath, 'utf8');
+// Save original test package.json
+const originalTestPkg = readFileSync(testPkgPath, 'utf8');
 
 function runCLI(args, options = {}) {
   try {
@@ -91,35 +92,35 @@ failed += !test('Version flag (--version)', '--version', { success: true, matche
 // Test output format options
 console.log('\n=== Testing Output Format Options ===');
 // Set a test version first
-const testPkg = JSON.parse(originalPkg);
+const testPkg = JSON.parse(originalTestPkg);
 testPkg.version = '1.0.8';
-writeFileSync(pkgPath, JSON.stringify(testPkg, null, 2) + '\n');
+writeFileSync(testPkgPath, JSON.stringify(testPkg, null, 2) + '\n');
 
-failed += !test('Output format: json (default)', 'minor', { success: true, contains: '"version"' }) ? 1 : 0; passed += test('Output format: json (default)', 'minor', { success: true, contains: '"version"' }) ? 1 : 0;
-failed += !test('Output format: --output json', 'minor --output json', { success: true, contains: '"version"' }) ? 1 : 0; passed += test('Output format: --output json', 'minor --output json', { success: true, contains: '"version"' }) ? 1 : 0;
-failed += !test('Output format: --output version', 'minor --output version', { success: true, matches: /^1\.1\.0$/ }) ? 1 : 0; passed += test('Output format: --output version', 'minor --output version', { success: true, matches: /^1\.1\.0$/ }) ? 1 : 0;
-failed += !test('Output format: --output original', 'minor --output original', { success: true, matches: /^1\.0\.8$/ }) ? 1 : 0; passed += test('Output format: --output original', 'minor --output original', { success: true, matches: /^1\.0\.8$/ }) ? 1 : 0;
-failed += !test('Output format: short alias (-f)', 'minor -f version', { success: true, matches: /^1\.1\.0$/ }) ? 1 : 0; passed += test('Output format: short alias (-f)', 'minor -f version', { success: true, matches: /^1\.1\.0$/ }) ? 1 : 0;
+failed += !test('Output format: json (default)', 'minor --package-json test-data/package.json', { success: true, contains: '"version"' }) ? 1 : 0; passed += test('Output format: json (default)', 'minor --package-json test-data/package.json', { success: true, contains: '"version"' }) ? 1 : 0;
+failed += !test('Output format: --output json', 'minor --output json --package-json test-data/package.json', { success: true, contains: '"version"' }) ? 1 : 0; passed += test('Output format: --output json', 'minor --output json --package-json test-data/package.json', { success: true, contains: '"version"' }) ? 1 : 0;
+failed += !test('Output format: --output version', 'minor --output version --package-json test-data/package.json', { success: true, matches: /^1\.1\.0$/ }) ? 1 : 0; passed += test('Output format: --output version', 'minor --output version --package-json test-data/package.json', { success: true, matches: /^1\.1\.0$/ }) ? 1 : 0;
+failed += !test('Output format: --output original', 'minor --output original --package-json test-data/package.json', { success: true, matches: /^1\.0\.8$/ }) ? 1 : 0; passed += test('Output format: --output original', 'minor --output original --package-json test-data/package.json', { success: true, matches: /^1\.0\.8$/ }) ? 1 : 0;
+failed += !test('Output format: short alias (-f)', 'minor -f version --package-json test-data/package.json', { success: true, matches: /^1\.1\.0$/ }) ? 1 : 0; passed += test('Output format: short alias (-f)', 'minor -f version --package-json test-data/package.json', { success: true, matches: /^1\.1\.0$/ }) ? 1 : 0;
 
 // Test override option
 console.log('\n=== Testing Override Option ===');
-failed += !test('Override option: --override', 'minor --override 2.5.0', { success: true, contains: '"original":"2.5.0"' }) ? 1 : 0; passed += test('Override option: --override', 'minor --override 2.5.0', { success: true, contains: '"original":"2.5.0"' }) ? 1 : 0;
-failed += !test('Override option: short alias (-o)', 'patch -o 1.2.3', { success: true, contains: '"original":"1.2.3"' }) ? 1 : 0; passed += test('Override option: short alias (-o)', 'patch -o 1.2.3', { success: true, contains: '"original":"1.2.3"' }) ? 1 : 0;
+failed += !test('Override option: --override', 'minor --override 2.5.0 --package-json test-data/package.json', { success: true, contains: '"original":"2.5.0"' }) ? 1 : 0; passed += test('Override option: --override', 'minor --override 2.5.0 --package-json test-data/package.json', { success: true, contains: '"original":"2.5.0"' }) ? 1 : 0;
+failed += !test('Override option: short alias (-o)', 'patch -o 1.2.3 --package-json test-data/package.json', { success: true, contains: '"original":"1.2.3"' }) ? 1 : 0; passed += test('Override option: short alias (-o)', 'patch -o 1.2.3 --package-json test-data/package.json', { success: true, contains: '"original":"1.2.3"' }) ? 1 : 0;
 
 // Test error handling
 console.log('\n=== Testing Error Handling ===');
 failed += !test('Missing required argument', '', { success: false }) ? 1 : 0; passed += test('Missing required argument', '', { success: false }) ? 1 : 0;
-failed += !test('Invalid output format', 'minor --output invalid', { success: false }) ? 1 : 0; passed += test('Invalid output format', 'minor --output invalid', { success: false }) ? 1 : 0;
-failed += !test('Invalid override version', 'minor --override invalid-version', { success: false }) ? 1 : 0; passed += test('Invalid override version', 'minor --override invalid-version', { success: false }) ? 1 : 0;
+failed += !test('Invalid output format', 'minor --output invalid --package-json test-data/package.json', { success: false }) ? 1 : 0; passed += test('Invalid output format', 'minor --output invalid --package-json test-data/package.json', { success: false }) ? 1 : 0;
+failed += !test('Invalid override version', 'minor --override invalid-version --package-json test-data/package.json', { success: false }) ? 1 : 0; passed += test('Invalid override version', 'minor --override invalid-version --package-json test-data/package.json', { success: false }) ? 1 : 0;
 
 // Test that basic functionality still works with CLI
 console.log('\n=== Testing Basic Functionality via CLI ===');
-failed += !test('CLI: bump command', 'bump', { success: true, contains: '"version"' }) ? 1 : 0; passed += test('CLI: bump command', 'bump', { success: true, contains: '"version"' }) ? 1 : 0;
-failed += !test('CLI: major command', 'major', { success: true, contains: '"version"' }) ? 1 : 0; passed += test('CLI: major command', 'major', { success: true, contains: '"version"' }) ? 1 : 0;
-failed += !test('CLI: specific version', '1.2.3', { success: true, contains: '"version":"1.2.3"' }) ? 1 : 0; passed += test('CLI: specific version', '1.2.3', { success: true, contains: '"version":"1.2.3"' }) ? 1 : 0;
+failed += !test('CLI: bump command', 'bump --package-json test-data/package.json', { success: true, contains: '"version"' }) ? 1 : 0; passed += test('CLI: bump command', 'bump --package-json test-data/package.json', { success: true, contains: '"version"' }) ? 1 : 0;
+failed += !test('CLI: major command', 'major --package-json test-data/package.json', { success: true, contains: '"version"' }) ? 1 : 0; passed += test('CLI: major command', 'major --package-json test-data/package.json', { success: true, contains: '"version"' }) ? 1 : 0;
+failed += !test('CLI: specific version', '1.2.3 --package-json test-data/package.json', { success: true, contains: '"version":"1.2.3"' }) ? 1 : 0; passed += test('CLI: specific version', '1.2.3 --package-json test-data/package.json', { success: true, contains: '"version":"1.2.3"' }) ? 1 : 0;
 
-// Restore original package.json
-writeFileSync(pkgPath, originalPkg);
+// Restore original test package.json
+writeFileSync(testPkgPath, originalTestPkg);
 
 console.log('\n=== Summary ===');
 console.log(`Passed: ${passed}`);
