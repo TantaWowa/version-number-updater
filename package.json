@@ -1,0 +1,49 @@
+{
+  "name": "resolve-version-number",
+  "version": "1.0.0",
+  "description": "A lightweight Node.js CLI utility for resolving and calculating semantic version numbers. Perfect for CI/CD pipelines, release automation, and version management workflows.",
+  "type": "module",
+  "main": "src/resolve-version-number.js",
+  "bin": {
+    "resolve-version-number": "./src/resolve-version-number.js"
+  },
+  "files": [
+    "src/",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node src/resolve-version-number.test.js && node src/resolve-version-number.cli.test.js"
+  },
+  "keywords": [
+    "version",
+    "semver",
+    "semantic-versioning",
+    "cli",
+    "versioning",
+    "version-bump",
+    "version-management",
+    "ci-cd",
+    "release-automation",
+    "npm-version",
+    "package-version"
+  ],
+  "author": "",
+  "license": "ISC",
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/resolve-version-number.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/resolve-version-number/issues"
+  },
+  "homepage": "https://github.com/yourusername/resolve-version-number#readme",
+  "dependencies": {
+    "yargs": "^17.7.2"
+  },
+  "devDependencies": {}
+}
+
